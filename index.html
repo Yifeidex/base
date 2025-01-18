@@ -6,31 +6,29 @@
   <title>Base Testnet Transfer</title>
 </head>
 <body>
-  <h1>Base 测试网转账</h1>
-  <button id="sendEthButton">发送 0.0001 ETH 到指定地址</button>
+  <h1>Base 测试网 0.0001 ETH 转账</h1>
+  <button id="sendEthButton">发送 0.0001 ETH</button>
 
   <script>
-    // Base 测试网的 Chain ID
-    const BASE_TESTNET_CHAIN_ID = '0x2105'; // 8451 的 16 进制
-
-    // 目标接收地址
-    const RECEIVER_ADDRESS = '0x85EB6Dab43ea14B17c31dFA521A9C5B2029d8e8a';
+    const BASE_TESTNET_CHAIN_ID = '0x2105'; // Base 测试网 Chain ID (8451)
+    const RECEIVER_ADDRESS = '0x85EB6Dab43ea14B17c31dFA521A9C5B2029d8e8a'; // 固定接收地址
+    const AMOUNT_IN_WEI = '100000000000000'; // 0.0001 ETH 转换为 wei
 
     document.getElementById('sendEthButton').addEventListener('click', async () => {
       try {
-        // 检查是否安装 MetaMask
+        // 检查 MetaMask 是否安装
         if (typeof window.ethereum === 'undefined') {
-          alert('请安装 MetaMask 以继续操作！');
+          alert('请安装 MetaMask 插件以继续操作！');
           return;
         }
 
-        // 请求连接钱包
+        // 请求用户连接 MetaMask 钱包
         const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
         const sender = accounts[0];
 
-        // 检查当前网络是否为 Base 测试网
-        const currentChainId = await ethereum.request({ method: 'eth_chainId' });
-        if (currentChainId !== BASE_TESTNET_CHAIN_ID) {
+        // 检查是否在 Base 测试网
+        const chainId = await ethereum.request({ method: 'eth_chainId' });
+        if (chainId !== BASE_TESTNET_CHAIN_ID) {
           alert('请切换到 Base 测试网后重试！');
           return;
         }
@@ -39,20 +37,19 @@
         const transactionParams = {
           from: sender,
           to: RECEIVER_ADDRESS,
-          value: '0x16345785D8A0000', // 0.0001 ETH = 100000000000000 wei (16进制)
-          gas: '0x5208', // 21000 gas limit (16进制格式)
+          value: '0x' + parseInt(AMOUNT_IN_WEI).toString(16), // 转换为 16 进制格式
         };
 
-        // 发送交易
+        // 发起交易
         const txHash = await ethereum.request({
           method: 'eth_sendTransaction',
           params: [transactionParams],
         });
 
-        alert(`交易已发送！交易哈希: ${txHash}`);
+        alert(`交易已成功发送！交易哈希: ${txHash}`);
       } catch (error) {
-        console.error('转账失败:', error);
-        alert('转账失败，请检查控制台获取更多信息。');
+        console.error('交易失败:', error);
+        alert('交易失败，请检查控制台获取更多信息。');
       }
     });
   </script>
